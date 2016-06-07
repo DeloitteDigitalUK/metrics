@@ -76,7 +76,7 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
         title : "",
         release : "",
         rating : "",
-        timestamp : (new Date()).toUTCString()
+        timestamp : (new Date()).toISOString()
       };
 
       $('.header').filter(function(){
