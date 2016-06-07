@@ -10,7 +10,6 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
 
