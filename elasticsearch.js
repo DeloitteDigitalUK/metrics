@@ -73,4 +73,24 @@ function addDocument(document) {
         }
     });
 }
+
+function addFilm(film) {
+    var date = new Date(),
+        year = date.getFullYear(),
+        month = date.getMonth() + 1,
+        day = date.getDate();
+
+    return elasticClient.index({
+        index: indexName + '-' + year + '.' + month + '.' + day,
+        type: "film",
+        body: { 
+            title : film.title, 
+            release : film.release, 
+            rating : film.rating,
+            timestamp : film.timestamp
+        }
+    });
+}
+
 exports.addDocument = addDocument;
+exports.addFilm = addFilm;

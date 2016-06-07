@@ -48,6 +48,10 @@ if (app.get('env') === 'development') {
   });
 }
 
+app.get('/scrape', function(req, res){
+
+});
+
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
@@ -57,39 +61,43 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+var elastic = require('./elasticsearch');
  
-var j = schedule.scheduleJob('15 * * * *', function(){
-  app.get('/scrape', function(req, res){
-    
-    url = 'http://www.imdb.com/title/tt1229340/';
+var j = schedule.scheduleJob('*/10 * * * * *', function(){
+  var url = 'http://www.imdb.com/title/tt1229340/';
 
-    request(url, function(error, response, html){
-        if(!error){
-            var $ = cheerio.load(html);
+  console.log('scheduleJob: 15');
 
-            var title, release, rating;
-            var json = { title : "", release : "", rating : ""};
+  request(url, function(error, response, html){
+    if(!error){
+      var $ = cheerio.load(html);
+      var json = {
+        title : "",
+        release : "",
+        rating : "",
+        timestamp : (new Date()).toUTCString()
+      };
 
-            // We'll use the unique header class as a starting point.
+      $('.header').filter(function(){
+          var data = $(this);
 
-            $('.header').filter(function(){
+          json.title = data.children().first().text();            
+          json.release = data.children().last().children().text();
+      })
 
-           // Let's store the data we filter into a variable so we can easily see what's going on.
+      $('.star-box-giga-star').filter(function(){
+          var data = $(this);
 
-                var data = $(this);
+          json.rating = data.text();
+      });
 
-           // In examining the DOM we notice that the title rests within the first child element of the header tag. 
-           // Utilizing jQuery we can easily navigate and get the text by writing the following code:
-
-                title = data.children().first().text();
-
-           // Once we have our title, we'll store it to the our json object.
-
-                json.title = title;
-            })
-        }
-    })
-})
+      elastic.addFilm(json).then(function (result) {
+        console.log(result);
+      });
+    }
+  });
 });
+
 
 module.exports = app;
