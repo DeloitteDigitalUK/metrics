@@ -65,34 +65,29 @@ app.use(function(err, req, res, next) {
 var elastic = require('./elasticsearch');
  
 var j = schedule.scheduleJob('*/10 * * * * *', function(){
-  var url = 'http://www.imdb.com/title/tt1229340/';
+  var url = 'http://192.168.99.100:8081/job/test-shit/lastSuccessfulBuild/api/json?pretty=true';
 
-  console.log('scheduleJob: 15');
+  console.log('scheduleJobe very 10 second');
 
-  request(url, function(error, response, html){
+  request(url, function(error, response, body){
     if(!error){
-      var $ = cheerio.load(html);
       var json = {
-        title : "",
-        release : "",
-        rating : "",
-        timestamp : (new Date()).toISOString()
+        project: "",
+        component: "",
+        job: { 
+            name: "",
+            build: "",
+            duration: "",
+            timestamp: ""
+          } 
       };
+    obj = JSON.parse(body);
+    json.job.name = obj.displayName;
+    json.job.build = obj.number;
+    json.job.duration = obj.duration;
+    json.job.timestamp = (new  Date(obj.timestamp)).toISOString();
 
-      $('.header').filter(function(){
-          var data = $(this);
-
-          json.title = data.children().first().text();            
-          json.release = data.children().last().children().text();
-      })
-
-      $('.star-box-giga-star').filter(function(){
-          var data = $(this);
-
-          json.rating = data.text();
-      });
-
-      elastic.addFilm(json).then(function (result) {
+      elastic.addMetrics(json).then(function (result) {
         console.log(result);
       });
     }

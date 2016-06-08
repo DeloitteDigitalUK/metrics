@@ -48,7 +48,7 @@ function initMapping() {
                 job: { 
                     name: "string",
                     build: "number",
-                    runTime: "time",
+                    duration: "time",
                     runDate: "time"
                 }
             }
@@ -57,24 +57,7 @@ function initMapping() {
 }
 exports.initMapping = initMapping;
 
-function addDocument(document) {
-    return elasticClient.index({
-        index: indexName,
-        type: "document",
-        body: {
-                project: document.project,
-                component: document.component,
-                job: { 
-                    name: document.name,
-                    build: document.build,
-                    runTime: document.runTime,
-                    runDate: document.runDate
-                }
-        }
-    });
-}
-
-function addFilm(film) {
+function addMetrics(metrics) {
     var date = new Date(),
         year = date.getFullYear(),
         month = date.getMonth() + 1,
@@ -82,15 +65,18 @@ function addFilm(film) {
 
     return elasticClient.index({
         index: indexName + '-' + year + '.' + month + '.' + day,
-        type: "film",
-        body: { 
-            title : film.title, 
-            release : film.release, 
-            rating : film.rating,
-            timestamp : film.timestamp
+        type: "metrics",
+        body: {
+                project: metrics.project,
+                component: metrics.component,
+                job: { 
+                    name: metrics.name,
+                    build: metrics.build,
+                    duration: metrics.duration,
+                    timestamp: metrics.timestamp
+                }
         }
     });
 }
 
-exports.addDocument = addDocument;
-exports.addFilm = addFilm;
+exports.addMetrics = addMetrics;
