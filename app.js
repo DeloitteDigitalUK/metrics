@@ -10,6 +10,8 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 var routes = require('./routes/index');
+var admin = require('./routes/admin');
+var metrics = require('./routes/metrics');
 
 var app = express();
 
@@ -26,6 +28,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/admin', admin);
+app.use('/metrics', metrics);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -47,10 +51,6 @@ if (app.get('env') === 'development') {
     });
   });
 }
-
-app.get('/scrape', function(req, res){
-
-});
 
 // production error handler
 // no stacktraces leaked to user
@@ -74,18 +74,20 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
       var json = {
         project: "",
         component: "",
-        job: { 
-            name: "",
-            build: "",
-            duration: "",
-            timestamp: ""
-          } 
+        name: "",
+        build: "",
+        duration: "",
+        timestamp: ""
       };
     obj = JSON.parse(body);
-    json.job.name = obj.displayName;
-    json.job.build = obj.number;
-    json.job.duration = obj.duration;
-    json.job.timestamp = (new  Date(obj.timestamp)).toISOString();
+    json.project = obj.displayName;
+    json.component = 'test';
+    json.name = obj.displayName;
+    json.build = obj.number;
+    json.duration = obj.duration;
+    json.timestamp = (new  Date(obj.timestamp)).toISOString();
+
+    console.log(json);
 
       elastic.addMetrics(json).then(function (result) {
         console.log(result);

@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  each esRecord in esRecords
+    table
+      tr
+        td= esRecord._source.project
+        td= esRecord._source.jobUrl
+        td= esRecord.processed_build
+  form(action='/admin', method='POST')
+    | Project: 
+    input(type='text', name='project')
+    br
+    | Job URL: 
+    input(type='text', name='jobUrl')
+    input(type='submit', value='Submit')

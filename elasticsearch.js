@@ -57,6 +57,21 @@ function initMapping() {
 }
 exports.initMapping = initMapping;
 
+function addConfiguration(conf) {
+
+    return elasticClient.index({
+        index: 'sys_conf' ,
+        type: 'sys_conf',
+        body: {
+            project: conf.project,
+            jobUrl: conf.jobUrl,
+            processed_build: conf.processed_build
+        }
+    });
+}
+
+/*  This allows me to add metrics to the database */
+
 function addMetrics(metrics) {
     var date = new Date(),
         year = date.getFullYear(),
@@ -64,19 +79,35 @@ function addMetrics(metrics) {
         day = date.getDate();
 
     return elasticClient.index({
-        index: indexName + '-' + year + '.' + month + '.' + day,
+        index: `${indexName}-${year}.${month}.${day}`,
         type: "metrics",
         body: {
                 project: metrics.project,
-                component: metrics.component,
-                job: { 
-                    name: metrics.name,
-                    build: metrics.build,
-                    duration: metrics.duration,
-                    timestamp: metrics.timestamp
-                }
+                component: metrics.component, 
+                name: metrics.name,
+                build: metrics.build,
+                duration: metrics.duration,
+                timestamp: metrics.timestamp
+                
         }
     });
 }
 
+/*  search for stuff in elasticsearch */
+
+function getConfig(callback) {
+    elasticClient.search({
+        index: 'sys_conf',
+        type: 'sys_conf',
+        body: {
+            query: {
+                "match_all": {}
+            }
+        }
+    }, callback);
+} 
+
+
 exports.addMetrics = addMetrics;
+exports.getConfig = getConfig;
+exports.addConfiguration = addConfiguration;

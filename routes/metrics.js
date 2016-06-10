@@ -8,8 +8,8 @@ POST document to be indexed
 
 test inputs entered here. Service monitor tobe added.
 */
-router.post('/', function (req, res, next) {  
-  elastic.addDocument(req.body).then(function (result) { res.json(result) });
+router.get('/', function (req, res, next) {  
+  res.render('index', { title: 'test routes' });
 });
 
 module.exports = router;
