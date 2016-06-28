@@ -33,7 +33,7 @@ app.use('/admin', admin);
 app.use('/metrics', metrics);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -44,7 +44,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
+  app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -55,7 +55,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -65,21 +65,26 @@ app.use(function(err, req, res, next) {
 
 var elastic = require('./elasticsearch');
  
-var j = schedule.scheduleJob('*/10 * * * * *', function(){
+var j = schedule.scheduleJob('*/10 * * * * *', function () {
 
   elastic.getConfig(function (err, result) {
     var records = _.get(result, 'hits.hits');
-    console.log(records);
+
     if (!records) return;
+
     records.forEach(function(record) { 
-      console.log(record.id);
-      var url = record.url; 
+      console.log(record);
+      var url = record._source.jobUrl; 
 
       console.log('processing 10 second');
 
+      var rec = record;
+
       request(url, function(error, response, body){
-        if(!error){
-          var json = {
+        if (error) {
+          return console.log(error);
+        }
+        var json = {
             project: "",
             component: "",
             name: "",
@@ -89,27 +94,22 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
           };
 
         obj = JSON.parse(body);
-        json.project = record.project;
-        json.component = record.component;
+        json.project = rec._source.project;
+        json.component = rec._source.component;
         json.name = obj.displayName;
         json.build = obj.number;
         json.duration = obj.duration;
-        json.timestamp = (new  Date(obj.timestamp)).toISOString();
+        json.timestamp = (new Date(obj.timestamp)).toISOString();
 
         console.log(json);
 
         elastic.addMetrics(json).then(function (result) {
-        
-        console.log(result);
+          
+          console.log(result);
+        });
       });
-    }
-  });
-
     });
-
   });
-
 });
-
 
 module.exports = app;
