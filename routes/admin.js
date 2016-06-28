@@ -22,7 +22,7 @@ router.get('/', function(req, res) {
 router.post('/', function (req, res) {
     var record = {
       project: req.body.project,
-      jobUrl: req.body.jobUrl
+      jobUrl: req.body.jobUrl,
       component: req.body.component
     };
 

@@ -5,6 +5,7 @@ block content
     table
       tr
         td= esRecord._source.project
+        td= esRecord._source.component
         td= esRecord._source.jobUrl
         td= esRecord.processed_build
   form(action='/admin', method='POST')

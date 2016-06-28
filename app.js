@@ -12,6 +12,7 @@ var cheerio = require('cheerio');
 var routes = require('./routes/index');
 var admin = require('./routes/admin');
 var metrics = require('./routes/metrics');
+var _ = require('lodash');
 
 var app = express();
 
@@ -69,7 +70,8 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
   elastic.getConfig(function (err, result) {
     var records = _.get(result, 'hits.hits');
     console.log(records);
-    json.forEach(function(records) { 
+    JSON.parse(records);
+    records.forEach(function(records) { 
       console.log(records.id);
       var url = records.url; 
 
