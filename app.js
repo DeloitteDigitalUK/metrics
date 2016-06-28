@@ -65,35 +65,48 @@ app.use(function(err, req, res, next) {
 var elastic = require('./elasticsearch');
  
 var j = schedule.scheduleJob('*/10 * * * * *', function(){
-  var url = 'http://192.168.99.100:8081/job/test-shit/lastSuccessfulBuild/api/json?pretty=true';
 
-  console.log('scheduleJobe very 10 second');
+  elastic.getConfig(function (err, result) {
+    var records = _.get(result, 'hits.hits');
+    console.log(records);
+    json.forEach(function(records) { 
+      console.log(records.id);
+      var url = records.url; 
 
-  request(url, function(error, response, body){
-    if(!error){
-      var json = {
-        project: "",
-        component: "",
-        name: "",
-        build: "",
-        duration: "",
-        timestamp: ""
-      };
-    obj = JSON.parse(body);
-    json.project = obj.displayName;
-    json.component = 'test';
-    json.name = obj.displayName;
-    json.build = obj.number;
-    json.duration = obj.duration;
-    json.timestamp = (new  Date(obj.timestamp)).toISOString();
+      console.log('processing 10 second');
 
-    console.log(json);
+      request(url, function(error, response, body){
+        if(!error){
+          var json = {
+            project: "",
+            component: "",
+            name: "",
+            build: "",
+            duration: "",
+            timestamp: ""
+          };
 
-      elastic.addMetrics(json).then(function (result) {
+        obj = JSON.parse(body);
+        json.project = records.project;
+        json.component = records.component;
+        json.name = obj.displayName;
+        json.build = obj.number;
+        json.duration = obj.duration;
+        json.timestamp = (new  Date(obj.timestamp)).toISOString();
+
+        console.log(json);
+
+        elastic.addMetrics(json).then(function (result) {
+        
         console.log(result);
       });
     }
   });
+
+    });
+
+  });
+
 });
 
 

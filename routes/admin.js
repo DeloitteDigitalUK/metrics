@@ -23,6 +23,7 @@ router.post('/', function (req, res) {
     var record = {
       project: req.body.project,
       jobUrl: req.body.jobUrl
+      component: req.body.component
     };
 
     console.log(record);
@@ -30,10 +31,6 @@ router.post('/', function (req, res) {
     elastic.addConfiguration(record).then(function (result) {
       console.log('The record created!');
       console.log(result);
-
-      elastic.getConfig(function (err, result) {
-        console.log(_.get(result, 'hits.hits'));
-      });
 
       res.redirect('/admin');
     });   

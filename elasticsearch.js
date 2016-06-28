@@ -64,6 +64,7 @@ function addConfiguration(conf) {
         type: 'sys_conf',
         body: {
             project: conf.project,
+            component: conf.component,
             jobUrl: conf.jobUrl,
             processed_build: conf.processed_build
         }
