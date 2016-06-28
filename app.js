@@ -70,10 +70,10 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
   elastic.getConfig(function (err, result) {
     var records = _.get(result, 'hits.hits');
     console.log(records);
-    JSON.parse(records);
-    records.forEach(function(records) { 
-      console.log(records.id);
-      var url = records.url; 
+    if (!records) return;
+    records.forEach(function(record) { 
+      console.log(record.id);
+      var url = record.url; 
 
       console.log('processing 10 second');
 
@@ -89,8 +89,8 @@ var j = schedule.scheduleJob('*/10 * * * * *', function(){
           };
 
         obj = JSON.parse(body);
-        json.project = records.project;
-        json.component = records.component;
+        json.project = record.project;
+        json.component = record.component;
         json.name = obj.displayName;
         json.build = obj.number;
         json.duration = obj.duration;
