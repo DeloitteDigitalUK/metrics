@@ -94,6 +94,32 @@ function addMetrics(metrics) {
     });
 }
 
+function checkMetrics(metrics, callback) {
+
+    return elasticClient.searchexists({
+        index: '_all',
+        type: 'metrics',
+        body: {
+            query: {
+                "must": [
+                    { "match": { "project": metrics.project }}, 
+                    { "match": { "component": metrics.component }},
+                    { "match": { "build": metrics.build }}, 
+                    { "match": { "duration": metrics.duration, }}, 
+                    { "match": { "timestamp": metrics.timestamp }}
+                ],
+            }
+        }
+        }, function (error, exists) {
+    if (exists === true) {
+        callback(true);
+    } else {
+        callback(false);
+    }
+    });
+
+}
+
 /*  search for stuff in elasticsearch */
 
 function getConfig(callback) {

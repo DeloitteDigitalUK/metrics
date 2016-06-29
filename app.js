@@ -100,13 +100,14 @@ var j = schedule.scheduleJob('*/10 * * * * *', function () {
         json.build = obj.number;
         json.duration = obj.duration;
         json.timestamp = (new Date(obj.timestamp)).toISOString();
-
         console.log(json);
-
-        elastic.addMetrics(json).then(function (result) {
-          
-          console.log(result);
-        });
+        if (elastic.checkMetrics(json)) {
+          elastic.addMetrics(json).then(function (result) {
+            console.log(result);
+          });
+        } else {
+          console.log("This entry already exists");
+        }
       });
     });
   });
