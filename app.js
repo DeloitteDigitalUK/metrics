@@ -100,14 +100,17 @@ var j = schedule.scheduleJob('*/10 * * * * *', function () {
         json.build = obj.number;
         json.duration = obj.duration;
         json.timestamp = (new Date(obj.timestamp)).toISOString();
-        console.log(json);
-        if (elastic.checkMetrics(json)) {
-          elastic.addMetrics(json).then(function (result) {
-            console.log(result);
-          });
-        } else {
-          console.log("This entry already exists");
-        }
+
+        elastic.checkMetrics(json, function (err, searchResults) {
+          if (searchResults.exists) {
+            console.log("This entry already exists");
+          } else {
+            elastic.addMetrics(json).then(function (result) {
+              console.log("New added");
+              console.log(result);
+            });
+          }
+        });
       });
     });
   });

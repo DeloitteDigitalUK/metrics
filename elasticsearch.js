@@ -96,27 +96,35 @@ function addMetrics(metrics) {
 
 function checkMetrics(metrics, callback) {
 
-    return elasticClient.searchexists({
+    console.log(metrics.project);
+    console.log(metrics.component);
+    console.log(metrics.build);
+    console.log(metrics.timestamp);
+
+    elasticClient.searchExists({
         index: '_all',
         type: 'metrics',
         body: {
             query: {
-                "must": [
-                    { "match": { "project": metrics.project }}, 
-                    { "match": { "component": metrics.component }},
-                    { "match": { "build": metrics.build }}, 
-                    { "match": { "duration": metrics.duration, }}, 
-                    { "match": { "timestamp": metrics.timestamp }}
-                ],
+                // "match": {
+                //     "project": metrics.project,
+                //     "component": metrics.component,
+                //     "build": metrics.build,
+                //     "timestamp": metrics.timestamp 
+                // }
+
+                "bool": { 
+                    "must": [
+                        { "match": { "project": metrics.project}}, 
+                        { "match": { "component": metrics.component}},
+                        { "match": { "build": metrics.build}}, 
+                        { "match": { "timestamp": metrics.timestamp}}
+                    ]
+                }
             }
         }
-        }, function (error, exists) {
-    if (exists === true) {
-        callback(true);
-    } else {
-        callback(false);
-    }
-    });
+    },
+    callback);
 
 }
 
@@ -136,5 +144,6 @@ function getConfig(callback) {
 
 
 exports.addMetrics = addMetrics;
+exports.checkMetrics = checkMetrics;
 exports.getConfig = getConfig;
 exports.addConfiguration = addConfiguration;
